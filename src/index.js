@@ -1,15 +1,16 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import PropTypes from "prop-types";
+import { Component } from "react";
 const canUseDOM = !!(
-  (typeof window !== 'undefined' &&
-  window.document && window.document.createElement)
+  typeof window !== "undefined" &&
+  window.document &&
+  window.document.createElement
 );
 
 export const IntercomAPI = (...args) => {
   if (canUseDOM && window.Intercom) {
     window.Intercom.apply(null, args);
   } else {
-    console.warn('Intercom not initialized yet');
+    console.warn("Intercom not initialized yet");
   }
 };
 
@@ -18,33 +19,30 @@ export default class Intercom extends Component {
     appID: PropTypes.string.isRequired,
   };
 
-  static displayName = 'Intercom';
+  static displayName = "Intercom";
 
   constructor(props) {
     super(props);
 
-    const {
-      appID,
-      ...otherProps,
-    } = props;
+    const { appID, ...otherProps } = props;
 
     if (!appID || !canUseDOM) {
       return;
     }
 
     if (!window.Intercom) {
-      (function(w, d, id, s, x) {
+      (function (w, d, id, s, x) {
         function i() {
-            i.c(arguments);
+          i.c(arguments);
         }
         i.q = [];
-        i.c = function(args) {
-            i.q.push(args);
+        i.c = function (args) {
+          i.q.push(args);
         };
         w.Intercom = i;
-        s = d.createElement('script');
+        s = d.createElement("script");
         s.async = 1;
-        s.src = 'https://widget.intercom.io/widget/' + id;
+        s.src = "https://widget.intercom.io/widget/" + id;
         d.head.appendChild(s);
       })(window, document, appID);
     }
@@ -52,15 +50,12 @@ export default class Intercom extends Component {
     window.intercomSettings = { ...otherProps, app_id: appID };
 
     if (window.Intercom) {
-      window.Intercom('boot', otherProps);
+      window.Intercom("boot", otherProps);
     }
   }
 
   componentWillReceiveProps(nextProps) {
-    const {
-      appID,
-      ...otherProps,
-    } = nextProps;
+    const { appID, ...otherProps } = nextProps;
 
     if (!canUseDOM) return;
 
@@ -69,10 +64,10 @@ export default class Intercom extends Component {
     if (window.Intercom) {
       if (this.loggedIn(this.props) && !this.loggedIn(nextProps)) {
         // Shutdown and boot each time the user logs out to clear conversations
-        window.Intercom('shutdown');
-        window.Intercom('boot', otherProps);
+        window.Intercom("shutdown");
+        window.Intercom("boot", otherProps);
       } else {
-        window.Intercom('update', otherProps);
+        window.Intercom("update", otherProps);
       }
     }
   }
@@ -84,10 +79,10 @@ export default class Intercom extends Component {
   componentWillUnmount() {
     if (!canUseDOM || !window.Intercom) return false;
 
-    window.Intercom('shutdown');
+    window.Intercom("shutdown");
 
-    delete window.Intercom;
-    delete window.intercomSettings;
+    // delete window.Intercom;
+    // delete window.intercomSettings;
   }
 
   loggedIn(props) {
